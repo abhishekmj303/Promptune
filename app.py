@@ -1,9 +1,12 @@
 import os
+import json
 from functools import wraps
-from flask import Flask, render_template, redirect, url_for, session, request
+from flask import Flask, render_template, redirect, url_for, session, request, jsonify
 from flask_session import Session
 import spotipy
 from dotenv import dotenv_values
+from ai import chat_session_id, client
+from prompt import prompt_text, playlist_prompt, available_genres
 
 env = dotenv_values(".env")
 
@@ -36,6 +39,7 @@ def index():
 	# 		 {'name': 'ggggg', 'artist': 'Anyone', 'url': ''},]
 	# return render_template("playlist.html", cover=cover, playlist=playlist)
 	return render_template("index.html")
+
 
 @app.route('/login')
 def login():
@@ -74,10 +78,78 @@ def spotipy_oauth(cache_handler: spotipy.cache_handler.CacheHandler):
         show_dialog=True
     )
 
+
 def is_logged_in():
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     auth_manager = spotipy_oauth(cache_handler)
     return auth_manager.validate_token(cache_handler.get_cached_token())
 
+
+@app.route("/query", methods=["POST"])
+@auth_required
+def query(spotify: spotipy.Spotify):
+    input_text = request.form["input_text"]
+    with client.connect(chat_session_id) as session:
+        reply = session.query(
+            prompt_text + input_text,
+            timeout=60,
+        )
+        
+        playlist_name_reply = session.query(
+            playlist_prompt + input_text,
+            timeout=60,
+        )
+        
+        reply.content = reply.content.replace('\\', '')
+        response = json.loads(reply.content)
+        playlist_name = playlist_name_reply.content
+
+    print(response)
+    print(playlist_name)
+
+
+    if "seed_artists" in response:
+        seed_artists = response["seed_artists"]
+        seed_artists = seed_artists.split(",")
+        for i in range(len(seed_artists)):
+            artist_id = spotify.search(q=seed_artists[i], type="artist")["artists"]["items"][0]["id"]
+            seed_artists[i] = artist_id
+        response["seed_artists"] = seed_artists
+    if "seed_tracks" in response:
+        seed_tracks = response["seed_tracks"]
+        seed_tracks = seed_tracks.split(",")
+        for i in range(len(seed_tracks)):
+            track_id = spotify.search(q=seed_tracks[i], type="track")["tracks"]["items"][0]["id"]
+            seed_tracks[i] = track_id
+        response["seed_tracks"] = seed_tracks
+    if "seed_genres" in response:
+        seed_genres = response["seed_genres"]
+        seed_genres = seed_genres.split(",")
+        # filter out invalid genres
+        seed_genres = [genre for genre in seed_genres if genre in available_genres]
+        response["seed_genres"] = seed_genres
+
+    print(response)
+    
+    recommendations = spotify.recommendations(limit=50, **response)
+    # id, name, artist, url (album image)
+    songs = []
+    for track in recommendations["tracks"]:
+        song = {
+            "id": track["id"],
+            "name": track["name"],
+            "artist": track["artists"][0]["name"],
+            "url": track["album"]["images"][0]["url"]
+        }
+        songs.append(song)
+    
+    cover = {
+        "title": playlist_name,
+        "url": songs[0]["url"]
+    }
+
+    return render_template("playlist.html", playlist = songs, cover = cover)
+
+
 if __name__ == '__main__':
-	app.run(debug=True)
+    app.run(debug=True)
