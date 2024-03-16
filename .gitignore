@@ -1,2 +1,6 @@
 node_modules
+__pycache__
 .venv
+.env
+.flask_session
+static/dist/css/output.css
