@@ -1,0 +1,73 @@
+{% extends 'index.html' %}
+
+{% block playlist %}
+        <!-- <div class="grid items-center gap-2 md:grid-cols-2"> -->
+            <div class="flex items-center space-x-2">
+                <img
+                    alt="Album cover"
+                    class="aspect-square object-cover rounded-lg"
+                    src="{{ cover['url'] }}"
+                    width="150"
+                    height="150"
+                />
+                <div class="space-y-1.5">
+                    <h3 class="text-lg font-semibold">{{ cover['title'] }}</h3>
+                    <p class="text-sm text-gray-500">20 songs, 1 hr 15 min</p>
+                            <button class="whitespace-nowrap text-sm font-medium">
+                                Save to Spotify
+                            </button>
+                            <!-- <button class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 rounded-md px-8">
+                                Save to Spotify
+                            </button> -->
+                </div>
+            </div>
+        <!-- </div> -->
+        <div class="w-full max-w-sm flex flex-col gap-2">
+            <div class="p-4 border rounded-lg border-dashed border-gray-200 dark:border-gray-800 relative overflow-y-auto max-h-80">
+                <button class="absolute top-2 right-2 flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="w-4 h-4"
+                    >
+                    <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                    <path d="M8 8h8v8"></path>
+                    <path d="m8 16 8-8"></path></svg>
+                    <span> Spotify </span>
+                </button>
+                <h2 class="text-sm font-medium tracking-tight">
+                    Your generated playlist
+                </h2>
+                <ol class="grid gap-2 mt-2 text-sm">
+                    {% for item in playlist %}
+                    <li class="flex items-center gap-2">
+                        <span>{{ loop.index }}</span>
+                        <div class="flex items-center gap-2">
+                            <img
+                                alt="{{ 'Track ' ~ (loop.index) }}"
+                                class="w-10 h-10 rounded-lg"
+                                src="{{ item['url'] }}"
+                                style="aspect-ratio: 40 / 40; object-fit: cover"
+                                width="40"
+                                height="40"
+                            />
+                            <div>
+                                <h3 class="font-semibold">{{ item['name'] }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{ item['artist'] }}
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+{% endblock %}
