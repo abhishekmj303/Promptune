@@ -31,20 +31,11 @@ def auth_required(func):
 
 @app.route("/")
 def index():
-	cover = {'title': 'Melody Mix', 'url': ''}
-	playlist = [{'name': 'fffff', 'artist': 'Anyone', 'url': ''}, 
-			 {'name': 'ggggg', 'artist': 'Anyone', 'url': ''},]
-	return render_template("playlist.html", cover=cover, playlist=playlist)
-	# return render_template("index.html")
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-	return render_template('login.html')
-
-@app.route('/query', methods=['POST'])
-def query():
-	return render_template('query.html')
-
+	# cover = {'title': 'Melody Mix', 'url': ''}
+	# playlist = [{'name': 'fffff', 'artist': 'Anyone', 'url': ''}, 
+	# 		 {'name': 'ggggg', 'artist': 'Anyone', 'url': ''},]
+	# return render_template("playlist.html", cover=cover, playlist=playlist)
+	return render_template("index.html")
 
 @app.route('/login')
 def login():
