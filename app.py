@@ -85,16 +85,16 @@ def spotipy_oauth(cache_handler: spotipy.cache_handler.CacheHandler):
         client_id=env['SPOTIFY_CLIENT_ID'],
         client_secret=env['SPOTIFY_CLIENT_SECRET'],
         redirect_uri=env['SPOTIFY_REDIRECT_URI'],
-        scope='playlist-read-collaborative,playlist-modify-private,playlist-modify-public,playlist-read-private,ugc-image-upload',
+        scope='user-top-read,playlist-read-collaborative,playlist-modify-private,playlist-modify-public,playlist-read-private,ugc-image-upload',
         cache_handler=cache_handler,
         show_dialog=True
     )
 
-
+@app.template_test()
 def is_logged_in():
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     auth_manager = spotipy_oauth(cache_handler)
-    return auth_manager.validate_token(cache_handler.get_cached_token())
+    return not auth_manager.validate_token(cache_handler.get_cached_token())
 
 
 def get_user_token():
@@ -106,6 +106,9 @@ def get_user_token():
 @auth_required
 def query(spotify: spotipy.Spotify):
     input_text = request.form["input_text"]
+    history_value = int(request.form["history"]) // 50
+    print("History: ", history_value)
+    # return ""
     with client.connect(chat_session_id) as session:
         reply = session.query(
             prompt_text + input_text,
@@ -148,8 +151,41 @@ def query(spotify: spotipy.Spotify):
         # filter out invalid genres
         seed_genres = [genre for genre in seed_genres if genre in available_genres]
         response["seed_genres"] = seed_genres
+        
+    top_artists = spotify.current_user_top_artists(limit=2*history_value)
+    
+    top_artists_ids = [artist["id"] for artist in top_artists["items"]]
+
+    if "seed_artists" in response:
+        response["seed_artists"] = response["seed_artists"] + top_artists_ids[: 4 - len(response["seed_artists"])]
+    else:
+        response["seed_artists"] = top_artists_ids[:4]
 
     print(response)
+
+    genre_n = len(response["seed_genres"])
+    artist_n = len(response["seed_artists"]) if 'seed_artists' in response else 0
+    track_n = len(response["seed_tracks"]) if 'seed_tracks' in response else 0
+
+    # to limit the number of seeds to 5
+    if genre_n + artist_n + track_n > 5:
+        k = genre_n + artist_n + track_n - 5
+        if genre_n - k < 1:
+            response["seed_genres"] = response["seed_genres"][:1]
+        else:
+            response["seed_genres"] = response["seed_genres"][:genre_n - k]
+    if genre_n + artist_n + track_n > 5 and 'seed_artists' in response:
+        k = genre_n + artist_n + track_n - 5
+        if artist_n - k < 1:
+            response["seed_artists"] = response["seed_artists"][:1]
+        else:
+            response["seed_artists"] = response["seed_artists"][:artist_n - k]
+    if genre_n + artist_n + track_n > 5 and 'seed_tracks' in response:
+        k = genre_n + artist_n + track_n - 5
+        if track_n - k < 1:
+            response["seed_tracks"] = response["seed_tracks"][:1]
+        else:
+            response["seed_tracks"] = response["seed_tracks"][:track_n - k]
     
     recommendations = spotify.recommendations(limit=50, **response)
     # id, name, artist, url (album image)
