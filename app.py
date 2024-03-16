@@ -7,6 +7,7 @@ import spotipy
 from dotenv import dotenv_values
 from ai import chat_session_id, client
 from prompt import prompt_text, playlist_prompt, available_genres
+from playlist_image import create_image
 
 env = dotenv_values(".env")
 
@@ -102,10 +103,21 @@ def query(spotify: spotipy.Spotify):
         
         reply.content = reply.content.replace('\\', '')
         response = json.loads(reply.content)
-        playlist_name = playlist_name_reply.content
+        playlist_response = playlist_name_reply.content
 
     print(response)
+    # print(playlist_name)
+    print(playlist_response)
+
+    # plalist_name has the playlist name and colors seperated by commas
+    playlist_response = playlist_response.split(", ")
+    playlist_name = playlist_response[0]
+    colors = playlist_response[1:]
+
     print(playlist_name)
+    print(colors)
+    create_image(colors, playlist_name)
+
 
 
     if "seed_artists" in response:
