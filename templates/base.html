@@ -15,4 +15,15 @@
             {% block initial %}{% endblock %}
         </div>
     </body>
+    <script>
+        function validateForm() {
+            console.log("Validating form....")
+            var inputText = document.getElementById("inputText").value;
+            if (inputText.trim() === "") {
+                alert("Please enter your prompt.");
+                return false; // Prevent form submission
+            }
+            return true; // Allow form submission
+        }
+    </script>
 </html>

@@ -22,14 +22,23 @@
             <span class="text-lg font-semibold"> shuffler </span>
         </a>
         <nav class="flex ml-auto gap-4">
-            <a href="{{url_for('login')}}" >
-                <button
-                class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/70 h-9 rounded-md px-3"
-
-                >
-                Login with Spotify
-                </button>
-            </a>
+            {% if is_logged_in %}
+                <a href="{{url_for('login')}}" >
+                    <button
+                    class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/70 h-9 rounded-md px-3"
+                    >
+                    Login with Spotify
+                    </button>
+                </a>
+            {% else %}
+                <a href="{{url_for('login')}}" >
+                    <button
+                    class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/70 h-9 rounded-md px-3"
+                    >
+                    Logout
+                    </button>
+                </a>
+            {% endif %}
         </nav>
         </div>
     </header>
@@ -43,10 +52,11 @@
             </p>
         </div>
         <div class="w-full max-w-md rounded-xl border border-gray-200 dark:border-gray-800">
-            <form action="/query" method="post">
+            <form action="/query" method="post" onsubmit="return validateForm()">
                 <div class="flex gap-2 p-2">
                     <input
                     name="input_text"
+                    id="inputText"
                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1 text-sm"
                     placeholder="Enter your prompt"
                     type="text"
@@ -57,6 +67,22 @@
                     >
                         Generate
                     </button>
+                </div>
+                <div class="flex flex-col items-center space-y-2">
+                    <label id="relevance-label" class="text-xs">
+                      Relevance to your Spotify history
+                    </label>
+                    <input class="h-6 w-36" list="tickmarks" step="50" type="range" name="history" style="--tw-range-thumb-color: black;"/>
+                    <datalist id="tickmarks">
+                      <option label="low" value="0"></option>
+                      <option label="medium" value="50"></option>
+                      <option label="high" value="100"></option>
+                    </datalist>
+                    <div class="flex justify-between w-36 text-xs text-gray-500">
+                      <span>low</span>
+                      <span>medium</span>
+                      <span>high</span>
+                    </div>
                 </div>
             </form>
         </div>
