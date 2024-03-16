@@ -58,15 +58,19 @@
           class="w-full max-w-md rounded-xl border border-gray-200 dark:border-gray-800"
         >
           <div class="flex gap-2 p-2">
+            <form id="chat" action="/query" method="post">
             <input
+              name = "input_text"
               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex-1 text-sm"
               placeholder="Enter your prompt"
               type="text"
             /><button
+              type="submit"
               class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/70 h-9 rounded-md px-3"
             >
               Generate
             </button>
+          </form>
           </div>
         </div>
         <div class="w-full max-w-sm flex flex-col gap-2">
@@ -179,5 +183,6 @@
         </nav>
       </footer>
     </div>
+    
   </body>
 </html>
