@@ -12,19 +12,29 @@
                 />
                 <div class="space-y-1.5">
                     <h3 class="text-lg font-semibold">{{ cover['title'] }}</h3>
-                    <p class="text-sm text-gray-500">20 songs, 1 hr 15 min</p>
-                            <button class="whitespace-nowrap text-sm font-medium">
-                                Save to Spotify
-                            </button>
-                            <!-- <button class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 rounded-md px-8">
-                                Save to Spotify
-                            </button> -->
+                    <p class="text-sm text-gray-500">{{ playlist|count }} songs</p>
+                        {% if spotify_url == "" %}
+                        <a href="{{ url_for('save') }}"
+                        <button class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/70 h-9 rounded-md px-3">
+                            Save to Spotify
+                        </button>
+                        </a>
+                        {% else %}
+                        <a href="{{ spotify_url }}" target="_blank"
+                        <button class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-black text-white hover:bg-black/70 h-9 rounded-md px-3">
+                            Open in Spotify
+                        </button>
+                        </a>
+                        {% endif %}
+                        <!-- <button class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 rounded-md px-8">
+                            Save to Spotify
+                        </button> -->
                 </div>
             </div>
         <!-- </div> -->
         <div class="w-full max-w-sm flex flex-col gap-2">
             <div class="p-4 border rounded-lg border-dashed border-gray-200 dark:border-gray-800 relative overflow-y-auto max-h-80">
-                <button class="absolute top-2 right-2 flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                <!-- <button class="absolute top-2 right-2 flex items-center gap-1 text-gray-500 dark:text-gray-400">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -41,7 +51,7 @@
                     <path d="M8 8h8v8"></path>
                     <path d="m8 16 8-8"></path></svg>
                     <span> Spotify </span>
-                </button>
+                </button> -->
                 <h2 class="text-sm font-medium tracking-tight">
                     Your generated playlist
                 </h2>

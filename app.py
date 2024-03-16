@@ -1,7 +1,7 @@
 import os
 import json
 from functools import wraps
-from flask import Flask, render_template, redirect, url_for, session, request, jsonify
+from flask import Flask, render_template, redirect, url_for, session, request, flash
 from flask_session import Session
 import spotipy
 from dotenv import dotenv_values
@@ -15,6 +15,8 @@ app.config['SECRET_KEY'] = os.urandom(64)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
 Session(app)
+
+user_reccomendations = {}
 
 
 def auth_required(func):
@@ -34,11 +36,12 @@ def auth_required(func):
 
 @app.route("/")
 def index():
+    # print(get_user_token())
 	# cover = {'title': 'Melody Mix', 'url': ''}
 	# playlist = [{'name': 'fffff', 'artist': 'Anyone', 'url': ''}, 
 	# 		 {'name': 'ggggg', 'artist': 'Anyone', 'url': ''},]
-	# return render_template("playlist.html", cover=cover, playlist=playlist)
-	return render_template("index.html")
+	# return render_template("playlist.html", cover=cover, playlist=playlist, spotify_url="")
+    return render_template("index.html")
 
 
 @app.route('/login')
@@ -53,6 +56,14 @@ def login():
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect(auth_manager.get_authorize_url())
     
+    flash("You are already logged in.")
+    return redirect('/')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('token_info', None)
+    flash("You have successfully logged out.")
     return redirect('/')
 
 
@@ -63,6 +74,7 @@ def callback():
 
     if request.args.get("code"):
         auth_manager.get_access_token(request.args.get("code"))
+        flash("You have successfully logged in.")
         return redirect('/')
     
     return "Error: No code provided."
@@ -85,7 +97,12 @@ def is_logged_in():
     return auth_manager.validate_token(cache_handler.get_cached_token())
 
 
-@app.route("/query", methods=["POST"])
+def get_user_token():
+    cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+    return cache_handler.get_cached_token()
+
+
+@app.route("/generate", methods=["POST"])
 @auth_required
 def query(spotify: spotipy.Spotify):
     input_text = request.form["input_text"]
@@ -101,30 +118,33 @@ def query(spotify: spotipy.Spotify):
         )
         
         reply.content = reply.content.replace('\\', '')
-        response = json.loads(reply.content)
+        print(reply.content)
+        start_i = reply.content.find('{')
+        end_i = reply.content.rfind('}')
+        response = json.loads(reply.content[start_i:end_i+1])
         playlist_name = playlist_name_reply.content
 
-    print(response)
+    # print(response)
     print(playlist_name)
 
 
     if "seed_artists" in response:
         seed_artists = response["seed_artists"]
-        seed_artists = seed_artists.split(",")
+        seed_artists = seed_artists.split(", ")
         for i in range(len(seed_artists)):
             artist_id = spotify.search(q=seed_artists[i], type="artist")["artists"]["items"][0]["id"]
             seed_artists[i] = artist_id
         response["seed_artists"] = seed_artists
     if "seed_tracks" in response:
         seed_tracks = response["seed_tracks"]
-        seed_tracks = seed_tracks.split(",")
+        seed_tracks = seed_tracks.split(", ")
         for i in range(len(seed_tracks)):
             track_id = spotify.search(q=seed_tracks[i], type="track")["tracks"]["items"][0]["id"]
             seed_tracks[i] = track_id
         response["seed_tracks"] = seed_tracks
     if "seed_genres" in response:
         seed_genres = response["seed_genres"]
-        seed_genres = seed_genres.split(",")
+        seed_genres = seed_genres.split(", ")
         # filter out invalid genres
         seed_genres = [genre for genre in seed_genres if genre in available_genres]
         response["seed_genres"] = seed_genres
@@ -148,8 +168,40 @@ def query(spotify: spotipy.Spotify):
         "url": songs[0]["url"]
     }
 
-    return render_template("playlist.html", playlist = songs, cover = cover)
+    user_token = get_user_token()["access_token"]
+    user_reccomendations[user_token] = {
+        "title": playlist_name,
+        "songs": songs
+    }
 
+    return render_template("playlist.html", playlist = songs, cover = cover, spotify_url="")
+
+
+@app.route("/save")
+@auth_required
+def save(spotify: spotipy.Spotify):
+    user_token = get_user_token()["access_token"]
+    if user_token not in user_reccomendations:
+        return redirect("/")
+    playlist = user_reccomendations[user_token]
+    playlist_name = playlist["title"]
+    songs = playlist["songs"]
+    playlist_id = spotify.user_playlist_create(
+        user=spotify.me()["id"],
+        name=playlist_name,
+        public=False
+    )["id"]
+    song_ids = [song["id"] for song in songs]
+    spotify.playlist_add_items(playlist_id, song_ids)
+    cover = {
+        "title": playlist_name,
+        "url": spotify.playlist_cover_image(playlist_id)[0]["url"]
+    }
+    spotify_url = f"https://open.spotify.com/playlist/{playlist_id}"
+    return render_template("playlist.html", playlist = songs, cover = cover, spotify_url=spotify_url)
+
+
+app.jinja_env.globals.update(is_logged_in=is_logged_in)
 
 if __name__ == '__main__':
     app.run(debug=True)
