@@ -4,3 +4,4 @@ __pycache__
 .env
 .flask_session
 static/dist/css/output.css
+playlist.jpg

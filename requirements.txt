@@ -3,3 +3,4 @@ spotipy==2.23.0
 Flask-Session==0.6.0
 python-dotenv
 h2ogpte==1.4.0
+pillow==10.2.0

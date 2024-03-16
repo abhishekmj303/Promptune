@@ -1,5 +1,6 @@
 import os
 import json
+import random
 from functools import wraps
 from flask import Flask, render_template, redirect, url_for, session, request, flash
 from flask_session import Session
@@ -7,6 +8,7 @@ import spotipy
 from dotenv import dotenv_values
 from ai import chat_session_id, client
 from prompt import prompt_text, playlist_prompt, available_genres
+from playlist_image import create_image
 
 env = dotenv_values(".env")
 
@@ -125,10 +127,21 @@ def query(spotify: spotipy.Spotify):
         start_i = reply.content.find('{')
         end_i = reply.content.rfind('}')
         response = json.loads(reply.content[start_i:end_i+1])
-        playlist_name = playlist_name_reply.content
+        playlist_response = playlist_name_reply.content
 
-    # print(response)
+    print(response)
+    # print(playlist_name)
+    print(playlist_response)
+
+    # plalist_name has the playlist name and colors seperated by commas
+    playlist_response = playlist_response.split(", ")
+    playlist_name = playlist_response[0]
+    colors = playlist_response[1:]
+
     print(playlist_name)
+    print(colors)
+    create_image(colors, playlist_name)
+
 
 
     if "seed_artists" in response:
@@ -201,13 +214,14 @@ def query(spotify: spotipy.Spotify):
     
     cover = {
         "title": playlist_name,
-        "url": songs[0]["url"]
+        "url": songs["url"]
     }
 
     user_token = get_user_token()["access_token"]
+    num = random.randint(0, len(songs) - 1)
     user_reccomendations[user_token] = {
         "title": playlist_name,
-        "songs": songs
+        "songs": songs[num]["url"]
     }
 
     return render_template("playlist.html", playlist = songs, cover = cover, spotify_url="")
