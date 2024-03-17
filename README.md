@@ -1,12 +1,13 @@
 <h1 align="center" style="border-bottom: none">
     <b>
-        <h2 href=""> Shuffler </h2><br>
+        <h2 href=""> Promptune </h2><br>
     </b>
     </hr>
 </h1>
 
-# [`Website link`](https://spotify.bitgarden.tech/)  [`Demo video link `](http://www.google.com) [`Other links `](http://www.google.com) 
-mention the description here , mention what does your prototype does  , make sure that demo video also has narration made by the team members and shows the entire walkthrough of the project , for hardware projects , images , working video and code are required
+# [`Website link`](https://spotify.bitgarden.tech/)  [`Demo video link `](https://youtu.be/lFof-deyGEI)
+Generate a Spotify playlist based on a single prompt. As simple as that.
+
 ## Team Details
 `Team number` : VH250
 
@@ -17,26 +18,40 @@ mention the description here , mention what does your prototype does  , make sur
 | DSLR Siddesh | cs21b2019@iiitdm.ac.in |
 
 <div style="display: flex; flex-wrap: wrap;">
-    <img src="https://static.vecteezy.com/system/resources/previews/013/688/865/non_2x/modern-color-and-geometric-banner-design-template-on-the-background-of-the-mobile-phone-mobile-modern-poster-marketing-special-offer-promotion-smartphone-mockup-vector.jpg" alt="Image 1" style="width: 30%; margin: 5px;">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSECH9uhvdGq0EP6QqG8lzAyjz1F-6V5RyMZrjBGmoIbP5diPgG53mWePJ9RlWVbJuVWCo&usqp=CAU" alt="Image 2" style="width: 30%; margin: 5px;">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEwduQ50DEm_tr94tfGWHqAYzzvjb_5oS6ULmejCN2pBlolGfTv8wTwaa64fnt1GThiDc" alt="Image 3" style="width: 30%; margin: 5px;">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEwduQ50DEm_tr94tfGWHqAYzzvjb_5oS6ULmejCN2pBlolGfTv8wTwaa64fnt1GThiDc" alt="Image 3" style="width: 30%; margin: 5px;">
-       <img src="https://static.vecteezy.com/system/resources/previews/013/688/865/non_2x/modern-color-and-geometric-banner-design-template-on-the-background-of-the-mobile-phone-mobile-modern-poster-marketing-special-offer-promotion-smartphone-mockup-vector.jpg" alt="Image 1" style="width: 30%; margin: 5px;">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSECH9uhvdGq0EP6QqG8lzAyjz1F-6V5RyMZrjBGmoIbP5diPgG53mWePJ9RlWVbJuVWCo&usqp=CAU" alt="Image 2" style="width: 30%; margin: 5px;">
+    <img src="media/desktop_home.png" alt="Image 1">
+    <img src="media/desktop_playlist.png" alt="Image 2">
+    <img src="media/mobile_main.jpeg" alt="Image 3" style="width: 48%; margin: 5px;">
+    <img src="media/mobile_playlist.jpeg" alt="Image 3" style="width: 48%; margin: 5px;">
+    <img src="media/playlist.png" alt="Image 2"> -->
 </div>
 
 ## Problem statement 
-mention the problem , and mention the severity of the problem and why we need solution for that  , mention which gorup of people face that problem
+Generate a Spotify playlist based on a single prompt
+- In today's world, we are bombasted with an overwhelming amount of music choices. 
+- Sometimes, we're not quite sure what we want to listen to. And we want a perfect playlist for some very niche scenarios like laundry morning, road trip with friends etc.
+- We usually search for playlist in Spotify but they are not tuned for your music taste.
+
+
 ## About the project
-mention few details and features of the project , how it is solving the problem 
+Promptune, an innovative app designed to enhance your music listening experience by tailoring playlists to your mood and preferences.
+- Promptune solves this problem by providing personalized playlists curated specifically for each user.
+- Promptune uses large language model and spotify's api to analyse the user's promt and generate playlists that match it perfectly.
+- Promptune takes into account your listening history on Spotify, ensuring that the playlists generated are tailored to your unique taste and preferences.
 
 ## Technical implemntaion 
-mention the approach and how you have solved the problem with the technology , utilize multiple flowcharts to explain your solutions and approach
-- use bullets to explain
-- be consise and specific
-- explain with images and flowcharts
-- 
-![flowchart](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSm5X9E8h0kftXOW2B9jORBskdXF12pFKOX_Q&usqp=CAU)
+The project is has 3 main steps:
+
+1. Generating the Spotify Recommendation API's request JSON using LLM
+   1. Also generate playlist name.
+   2. Also generate 3 colors related to prompt
+      1. Generate playlist cover image using Mesh Gradient Algorithm from above generated colors
+2. Processing the seed_genres, seed_artists, seed_tracks from the JSON and replace with the actual Spotify's ID
+3. Take top_artists and top_tracks from the user's Spotify account based on slider of relevance in UI
+4. Making the request to Spotify's Recommendation API and getting the response
+5. Use Spotify's API to create a playlist and add the tracks to it
+6. Use Spotify's API to set the playlist cover image
+
+![flowchart](media/flowchart.png)
 
 ## Techstacks used 
 `nodejs` , `react` , `ml` , `tech stack 1` , `tech stack 2`
