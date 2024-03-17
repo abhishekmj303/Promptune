@@ -14,10 +14,12 @@
         <div id="gradient-background" class="w-full min-h-screen flex flex-col items-center gap-4 py-12 bg-gradient-to-br from-cyan-400 via-cyan-500 to-green-400">
             {% block initial %}{% endblock %}
             <!-- Add notice that new users can’t login as per spotify's limitation -->
+            <footer  class="w-full max-w-3xl px-4 flex flex-col items-center gap-4 text-center">
             <p class="text-sm text-red-500 dark:text-red-400">
                 Notice: Login with Spotify may not work as Spotify adds limitations for developmental apps to logging in
                 from only specified emails. Please contact me to add your email to the list.
             </p>
+            </footer>
         </div>
     </body>
     <script>
