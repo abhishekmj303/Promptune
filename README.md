@@ -54,25 +54,27 @@ The project is has 3 main steps:
 ![flowchart](media/flowchart.png)
 
 ## Techstacks used 
-`nodejs` , `react` , `ml` , `tech stack 1` , `tech stack 2`
+`Flask` , `Tailwind` , `llamma-70b` , `spotipy`
 
-# Development
-
-## Setup
+### Setup
 
 ```bash
 pip install -r requirements.txt
 ```
 
 ```bash
-npm install
+npm install # node version 21.7.1
 ```
 
-## Run
+### Run
 
-In seperate terminals run the following commands:
+Setup the environment variables in a `.env` file
 ```bash
-npx tailwindcss -i ./static/src/input.css -o ./static/dist/css/output.css --watch
+cp .env.sample .env
+```
+
+```bash
+npx tailwindcss -i ./static/src/input.css -o ./static/dist/css/output.css
 ```
 
 ```bash
@@ -80,7 +82,10 @@ python app.py
 ```
 
 # What's next ?
-tell the future plan that you have for the project , tell the updates that you would wish to bring
+- The playlist cover can be purely AI generated using the prompt.
+- Fine tuning the LLM model to generate better playlists.
+- Adding more features like adding context using some user's own playlist
+- Add an option to import the generated playlist to other platforms like Youtube Music, Apple Music etc.
 
 ## Declaration
 We confirm that the project showcased here was either developed entirely during the hackathon or underwent significant updates within the hackathon timeframe. We understand that if any plagiarism from online sources is detected, our project will be disqualified, and our participation in the hackathon will be revoked.
