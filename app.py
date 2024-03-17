@@ -8,7 +8,7 @@ import spotipy
 from dotenv import dotenv_values
 from ai import chat_session_id, client
 from prompt import prompt_text, playlist_prompt, available_genres
-from playlist_image import create_image
+from playlist_image import create_image, base64_image
 
 env = dotenv_values(".env")
 
@@ -96,7 +96,7 @@ def spotipy_oauth(cache_handler: spotipy.cache_handler.CacheHandler):
 def is_logged_in():
     cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
     auth_manager = spotipy_oauth(cache_handler)
-    return not auth_manager.validate_token(cache_handler.get_cached_token())
+    return auth_manager.validate_token(cache_handler.get_cached_token())
 
 
 def get_user_token():
@@ -142,8 +142,6 @@ def query(spotify: spotipy.Spotify):
     print(colors)
     create_image(colors, playlist_name)
 
-
-
     if "seed_artists" in response:
         seed_artists = response["seed_artists"]
         seed_artists = seed_artists.split(", ")
@@ -164,15 +162,16 @@ def query(spotify: spotipy.Spotify):
         # filter out invalid genres
         seed_genres = [genre for genre in seed_genres if genre in available_genres]
         response["seed_genres"] = seed_genres
-        
-    top_artists = spotify.current_user_top_artists(limit=2*history_value)
     
-    top_artists_ids = [artist["id"] for artist in top_artists["items"]]
+    if history_value != 0:
+        top_artists = spotify.current_user_top_artists(limit=2*history_value)
+        
+        top_artists_ids = [artist["id"] for artist in top_artists["items"]]
 
-    if "seed_artists" in response:
-        response["seed_artists"] = response["seed_artists"] + top_artists_ids[: 4 - len(response["seed_artists"])]
-    else:
-        response["seed_artists"] = top_artists_ids[:4]
+        if "seed_artists" in response:
+            response["seed_artists"] = response["seed_artists"] + top_artists_ids[: 4 - len(response["seed_artists"])]
+        else:
+            response["seed_artists"] = top_artists_ids[:4]
 
     print(response)
 
@@ -212,16 +211,16 @@ def query(spotify: spotipy.Spotify):
         }
         songs.append(song)
     
+    num = random.randint(0, len(songs) - 1)
     cover = {
         "title": playlist_name,
-        "url": songs["url"]
+        "url": songs[num]["url"]
     }
 
     user_token = get_user_token()["access_token"]
-    num = random.randint(0, len(songs) - 1)
     user_reccomendations[user_token] = {
         "title": playlist_name,
-        "songs": songs[num]["url"]
+        "songs": songs
     }
 
     return render_template("playlist.html", playlist = songs, cover = cover, spotify_url="")
@@ -243,6 +242,7 @@ def save(spotify: spotipy.Spotify):
     )["id"]
     song_ids = [song["id"] for song in songs]
     spotify.playlist_add_items(playlist_id, song_ids)
+    spotify.playlist_upload_cover_image(playlist_id, base64_image())
     cover = {
         "title": playlist_name,
         "url": spotify.playlist_cover_image(playlist_id)[0]["url"]
