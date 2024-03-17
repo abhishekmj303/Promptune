@@ -11,8 +11,10 @@
         />
     </head>
     <body>
-        <div id="gradient-background" class="w-full min-h-screen flex flex-col items-center gap-4 py-12">
+        <div id="gradient-background" class="w-full min-h-screen flex flex-col items-center gap-4 py-12 bg-gradient-to-br from-cyan-400 via-cyan-500 to-green-400">
             {% block initial %}{% endblock %}
+            <!-- Add notice that new users can’t login as per spotify's limitation -->
+            
         </div>
     </body>
     <script>
